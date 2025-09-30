@@ -1,0 +1,153 @@
+MyGame/
+ ├─ app/
+ │   ├─ src/
+ │   │   ├─ main/
+ │   │   │   ├─ java/com/example/mygame/MainActivity.java
+ │   │   │   ├─ java/com/example/mygame/GameView.java
+ │   │   │   └─ res/layout/activity_main.xml
+ │   │   └─ AndroidManifest.xml
+ │   ├─ build.gradle
+ ├─ build.gradle
+ └─ settings.gradlerootProject.name = "MyGame"
+include ':app'// build.gradle (project-level)
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.0.2'
+    }
+}
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.mygame">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="My Game"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace "com.example.mygame"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.example.mygame"
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
+}<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.example.mygame.GameView
+        android:id="@+id/gameView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</FrameLayout>package com.example.mygame;
+
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+    }
+}package com.example.mygame;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.view.MotionEvent;
+import android.view.View;
+
+public class GameView extends View {
+
+    private Paint paint;
+    private float x = 200;
+    private float y = 200;
+    private float dx = 10;
+    private float dy = 10;
+    private int radius = 60;
+
+    public GameView(Context context) {
+        super(context);
+        paint = new Paint();
+        paint.setColor(Color.RED);
+
+        // تحديث الحركة كل 30ms
+        postDelayed(gameLoop, 30);
+    }
+
+    private Runnable gameLoop = new Runnable() {
+        @Override
+        public void run() {
+            x += dx;
+            y += dy;
+
+            if (x < radius || x > getWidth() - radius) dx = -dx;
+            if (y < radius || y > getHeight() - radius) dy = -dy;
+
+            invalidate();
+            postDelayed(this, 30);
+        }
+    };
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        canvas.drawColor(Color.WHITE);
+        canvas.drawCircle(x, y, radius, paint);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        // تغيير الاتجاه عند الضغط
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            dx = -dx;
+            dy = -dy;
+            return true;
+        }
+        return super.onTouchEvent(event);
+    }
+}
